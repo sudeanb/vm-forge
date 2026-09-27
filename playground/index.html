@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VM Forge — assemble, run and debug VFA-16 in your browser</title>
+<style>
+  :root {
+    --bg: #0c1017; --panel: #121826; --border: #26304a;
+    --text: #dde5f2; --muted: #7e8aa3; --accent: #5aa2f7; --ok: #46c98b; --err: #ef6b73; --amber: #edb43d;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 12px; }
+  header h1 { font-size: 19px; color: var(--accent); }
+  header span { color: var(--muted); font-size: 13px; }
+  header a { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .bar { display: flex; gap: 8px; padding: 10px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  button { background: var(--accent); border: 0; border-radius: 6px; color: #04101f; padding: 6px 14px; font-weight: 600; cursor: pointer; font-size: 13px; }
+  button:hover { filter: brightness(1.12); }
+  button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  button.ghost:hover { color: var(--text); }
+  select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-size: 13px; }
+  .layout { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 12px 20px; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+  .card h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  textarea { width: 100%; height: 340px; background: #0a0e16; color: var(--text); border: 1px solid var(--border);
+             border-radius: 6px; padding: 10px; font: 13px/1.5 ui-monospace, Menlo, monospace; resize: vertical; outline: none; }
+  #asmmsg { font: 12px ui-monospace, monospace; margin-top: 6px; min-height: 16px; }
+  #asmmsg.err { color: var(--err); }
+  #asmmsg.ok { color: var(--ok); }
+  #dis { height: 300px; overflow: auto; font: 12px/1.5 ui-monospace, Menlo, monospace; }
+  #dis div { padding: 0 8px; cursor: pointer; white-space: pre; border-radius: 4px; }
+  #dis div:hover { background: #1a2237; }
+  #dis div.pc { background: #14283f; color: var(--accent); }
+  #dis div.bp:not(.pc) { color: var(--err); }
+  #dis div.bp.pc { background: #3a1a20; color: var(--err); }
+  .regs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font: 12px ui-monospace, Menlo, monospace; }
+  .regs div { background: #0a0e16; border-radius: 5px; padding: 4px 6px; }
+  .regs b { color: var(--amber); }
+  .flags { margin-top: 8px; display: flex; gap: 10px; font: 12px ui-monospace, monospace; color: var(--muted); }
+  .flags span b { color: var(--ok); }
+  #console { background: #05080d; border: 1px solid var(--border); border-radius: 6px; height: 130px;
+             overflow: auto; padding: 8px; font: 12.5px/1.45 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+  #mem { height: 180px; overflow: auto; font: 11.5px/1.5 ui-monospace, Menlo, monospace; white-space: pre; }
+  footer { padding: 8px 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚙ VM Forge</h1>
+  <span>VFA-16 — a 39-instruction ISA with its own assembly language, assembled and executed in your browser</span>
+  <a href="https://github.com/sudeanb/vm-forge">GitHub ↗</a>
+</header>
+<div class="bar">
+  <button id="run">▶ Run</button>
+  <button id="pause" class="ghost">⏸ Pause</button>
+  <button id="step" class="ghost">⏭ Step</button>
+  <button id="reset" class="ghost">↺ Reset</button>
+  <span style="flex:1"></span>
+  <label style="font-size:12px;color:var(--muted)">example
+    <select id="example"></select>
+  </label>
+  <button id="load" class="ghost">Load</button>
+</div>
+<div class="layout">
+  <div class="card">
+    <h2>Assembly source</h2>
+    <textarea id="src" spellcheck="false"></textarea>
+    <div id="asmmsg"></div>
+    <h2 style="margin-top:10px">Console (OUT)</h2>
+    <div id="console"></div>
+  </div>
+  <div class="card">
+    <h2>Disassembly — click to toggle breakpoint</h2>
+    <div id="dis"></div>
+  </div>
+  <div class="card">
+    <h2>CPU</h2>
+    <div class="regs" id="regs"></div>
+    <div class="flags" id="flags"></div>
+    <h2 style="margin-top:10px">Memory window <span id="memaddr" style="text-transform:none"></span></h2>
+    <div id="mem"></div>
+  </div>
+</div>
+<footer>Everything runs client-side. The editor source is assembled by the same two-pass assembler the CLI uses; breakpoints pause the VM before the target instruction executes.</footer>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

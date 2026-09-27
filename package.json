@@ -1,0 +1,15 @@
+{
+  "name": "vm-forge",
+  "version": "0.1.0",
+  "description": "VMA-16: a 39-instruction virtual machine with its own assembly language, two-pass assembler, disassembler, trace mode, benchmark suite and a visual debugger. Zero dependencies.",
+  "type": "module",
+  "bin": { "vmforge": "bin/vmforge.js" },
+  "scripts": {
+    "test": "node --test",
+    "bench": "node bin/vmforge.js bench",
+    "start": "node bin/vmforge.js run programs/hello.vfa"
+  },
+  "engines": { "node": ">=18" },
+  "keywords": ["virtual-machine", "assembler", "bytecode", "isa", "emulator", "debugger", "benchmark"],
+  "license": "MIT"
+}

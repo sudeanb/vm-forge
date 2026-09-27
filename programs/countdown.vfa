@@ -1,0 +1,18 @@
+; countdown.vfa - print 10 down to 1, one number per line.
+; Shows the two-digit print idiom: divide by 10, print tens then ones.
+
+start:  LD R0, 10       ; counter
+loop:   MOV R1, R0
+        LD R2, 10
+        DIV R1, R2      ; R1 = tens
+        MOV R3, R0
+        MOD R3, R2      ; R3 = ones
+        ADDI R1, 48     ; ASCII digit
+        OUT R1
+        ADDI R3, 48
+        OUT R3
+        OUTI 10         ; newline
+        DEC R0
+        CMPI R0, 0
+        JNZ loop
+        HLT

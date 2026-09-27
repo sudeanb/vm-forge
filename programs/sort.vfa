@@ -1,0 +1,61 @@
+; sort.vfa - bubble sort 16 words at "table", print them sorted.
+; Exercises LDX/STX indirect addressing, CMP flags and nested loops.
+
+        LD R7, 16        ; n
+        LD R6, 16        ; outer pass counter
+passes: LD R0, 15        ; compares per pass = n-1
+        LD R1, table     ; pointer
+inner:  LDX R4, R1       ; a[i]
+        MOV R2, R1
+        ADDI R2, 2
+        LDX R5, R2       ; a[i+1]
+        CMP R4, R5
+        JN ok            ; already ascending
+        JZ ok            ; equal
+        STX R1, R5       ; swap
+        STX R2, R4
+ok:     INC R1
+        INC R1           ; ptr += 2
+        DEC R0
+        JNZ inner
+        DEC R6
+        JNZ passes
+
+        LD R7, 16        ; print all n values
+        LD R3, table     ; pointer (printnum does not touch R3)
+printl: LDX R1, R3
+        CALL printnum
+        OUTI 32
+        INC R3
+        INC R3
+        DEC R7
+        JNZ printl
+        OUTI 10
+        HLT
+
+; printnum: print R1 as unsigned decimal.
+; Clobbers R0/R1/R2/R5, saves R4. Digit loop pushes ASCII digits.
+printnum:
+        PUSH R4
+        MOV R2, R1       ; value
+        LD R5, 10        ; divisor
+        LD R4, 0         ; digits on stack
+pd:     MOV R0, R2
+        DIV R0, R5       ; R0 = value / 10
+        MOV R1, R2
+        MOD R1, R5       ; R1 = digit
+        ADDI R1, 48
+        PUSH R1
+        INC R4
+        MOV R2, R0
+        CMPI R2, 0
+        JNZ pd
+pl:     POP R0
+        OUT R0
+        DEC R4
+        JNZ pl
+        POP R4
+        RET
+
+table:  .word 34, 7, 233, 32, 5, 620, 100, 1
+        .word 99, 45, 128, 3, 77, 12, 250, 64

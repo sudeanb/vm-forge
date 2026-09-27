@@ -1,0 +1,11 @@
+; hello.vfa — print a string via OUTI byte codes
+        OUTI 86       ; V
+        OUTI 77       ; M
+        OUTI 45       ; -
+        OUTI 70       ; F
+        OUTI 79       ; O
+        OUTI 82       ; R
+        OUTI 71       ; G
+        OUTI 69       ; E
+        OUTI 10       ; \n
+        HLT

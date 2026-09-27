@@ -1,0 +1,61 @@
+; fib.vfa — recursive fibonacci with proper stack discipline.
+; fib(0)..fib(12) printed space-separated, then a newline.
+;
+; Calling convention: argument in R0, result in R0. printnum clobbers
+; R0-R5, main's R6/R7 survive because printnum saves what it uses.
+; fib saves R4 around recursion and uses the stack to carry fib(n-1)
+; across the second CALL - the whole point of the demo.
+
+        LD R6, 0        ; n = 0
+next:   MOV R0, R6
+        CALL fib
+        MOV R1, R0      ; result -> R1 for printing
+        CALL printnum
+        OUTI 32         ; space
+        INC R6
+        CMPI R6, 13
+        JNZ next        ; n = 0..12
+        OUTI 10
+        HLT
+
+; fib: R0 = fib(R0), recursive
+;   fib(n) = n                  for n < 2
+;   fib(n) = fib(n-1) + fib(n-2)
+fib:    CMPI R0, 2
+        JN base
+        PUSH R4         ; save caller's R4
+        DEC R0          ; n - 1
+        MOV R4, R0
+        CALL fib        ; R0 = fib(n-1)
+        PUSH R0         ; carry fib(n-1) across the next CALL
+        DEC R4          ; n - 2
+        MOV R0, R4
+        CALL fib        ; R0 = fib(n-2)
+        POP R4          ; R4 = fib(n-1)
+        ADD R0, R4
+        POP R4          ; restore caller's R4
+        RET
+base:   RET
+
+; printnum: print R1 as unsigned decimal (recursive digit loop)
+printnum:
+        PUSH R4
+        MOV R2, R1      ; value
+        LD R3, 10       ; divisor
+        LD R4, 0        ; digits on stack
+pd:     MOV R0, R2
+        DIV R0, R3      ; R0 = value / 10
+        MOV R5, R2
+        MOD R5, R3      ; R5 = digit
+        ADDI R5, 48
+        PUSH R5         ; digits land in reverse order
+        INC R4
+        MOV R2, R0
+        CMPI R2, 0
+        JNZ pd
+pl:     POP R0
+        OUT R0
+        DEC R4
+        JNZ pl
+        POP R4
+        RET

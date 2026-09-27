@@ -1,0 +1,7 @@
+; bench-count.vfa - count R0 from 0 to 20000. ~80k steps of pure dispatch.
+        LD R0, 0
+        LD R1, 20000
+loop:   INC R0
+        CMP R0, R1
+        JNZ loop
+        HLT

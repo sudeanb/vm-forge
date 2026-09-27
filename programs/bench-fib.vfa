@@ -1,0 +1,20 @@
+; bench-fib.vfa - recursive fib(18). Stresses CALL/RET and the stack.
+        LD R0, 18
+        CALL fib
+        HLT
+
+fib:    CMPI R0, 2
+        JN base
+        PUSH R4
+        DEC R0
+        MOV R4, R0
+        CALL fib
+        PUSH R0
+        DEC R4
+        MOV R0, R4
+        CALL fib
+        POP R4
+        ADD R0, R4
+        POP R4
+        RET
+base:   RET

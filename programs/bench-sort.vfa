@@ -1,0 +1,36 @@
+; bench-sort.vfa - bubble sort 32 words, 4 rounds.
+;
+; Loop-counter lesson encoded in comments: DEC wraps 0 -> 0xFFFF, and a
+; conditional jump back to a label ABOVE a counter's initialisation will
+; re-arm that counter forever. R6 (passes) is re-armed explicitly only
+; between rounds, after R7 (rounds) is tested with JZ.
+
+        LD R7, 4         ; rounds
+        LD R6, 32        ; passes per round
+outer:  LD R0, 31        ; compares per pass
+        LD R1, table
+inner:  LDX R4, R1
+        MOV R2, R1
+        ADDI R2, 2
+        LDX R5, R2
+        CMP R4, R5
+        JN ok
+        JZ ok
+        STX R1, R5
+        STX R2, R4
+ok:     INC R1
+        INC R1
+        DEC R0
+        JNZ inner
+        DEC R6
+        JNZ outer        ; more passes in this round
+        DEC R7           ; round finished
+        JZ done
+        LD R6, 32        ; re-arm passes for the next round
+        JMP outer
+done:   HLT
+
+table:  .word 615, 34, 928, 7, 233, 512, 32, 5
+        .word 620, 100, 1, 899, 99, 45, 128, 3
+        .word 77, 12, 250, 64, 534, 82, 301, 47
+        .word 700, 21, 666, 38, 450, 90, 210, 55
